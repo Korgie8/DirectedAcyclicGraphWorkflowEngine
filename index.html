@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Engine Test</title>
+</head>
+<body style="background: #1e1e1e; color: #00ff00; font-family: monospace; padding: 20px;">
+
+    <h2>SignalR Engine Connection</h2>
+    <button onclick="sendTaskDone()" style="padding: 10px; font-weight: bold;">Simulate 'Motor1' Done</button>
+    
+    <hr/>
+    <h3>C# Server Output:</h3>
+    <pre id="output"></pre>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        // 1. Point this to the exact port your .NET server is running on
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("http://localhost:5147/engine-socket") 
+            .build();
+
+        // 2. This is the "ear". It listens for C# calling "ExecuteNext"
+        connection.on("ExecuteNext", function (tasks) {
+            const screen = document.getElementById("output");
+            screen.innerText += "\n[RECEIVED] C# says execute: \n" + JSON.stringify(tasks, null, 2) + "\n";
+        });
+
+        // 3. Connect to the server
+        connection.start()
+            .then(() => document.getElementById("output").innerText += "[STATUS] Connected to C# Hub!\n")
+            .catch(err => console.error(err));
+
+        // 4. This is the "mouth". It yells at C# when you click the button.
+        function sendTaskDone() {
+            document.getElementById("output").innerText += "\n[SENT] Telling C# 'Motor1' is done...\n";
+            // Calls your ReportTaskDone method in EngineHub.cs
+            connection.invoke("ReportTaskDone", "Motor1")
+                .catch(err => console.error(err));
+        }
+    </script>
+</body>
+</html>
