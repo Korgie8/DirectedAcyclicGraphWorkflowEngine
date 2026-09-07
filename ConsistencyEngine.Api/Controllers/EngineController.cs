@@ -9,40 +9,30 @@ namespace ConsistencyEngine.Api.Controllers
     [Route("api/[controller]")]
     public class EngineController : ControllerBase
     {
-        private readonly TaskOrchestrator _orchestrator;
+        private readonly MissionManager _manager;
 
-        public EngineController(TaskOrchestrator orchestrator)
+        public EngineController(MissionManager manager)
         {
-            _orchestrator = orchestrator;
+            _manager = manager;
         }
 
-        [HttpPost("start")]
-        public IActionResult StartMission([FromBody] List<BlueprintNode> payload)
+        [HttpPost("start/{missionId}")]
+        public IActionResult StartMission(string missionId, [FromBody] List<BlueprintNode> payload)
         {
             ConsistencyGraph newGraph = new ConsistencyGraph();
             foreach (var node in payload)
             {
-                TaskNode taskNode = new TaskNode(node.Id)
-                {
-                    Dependencies = node.Dependencies
-                };
-                newGraph.AddNode(taskNode);
+                newGraph.AddNode(new TaskNode(node.Id) { Dependencies = node.Dependencies });
             }
 
             GraphResolver resolver = new GraphResolver();
-            try
-            {
-                resolver.Resolve(newGraph);
-            }
-            catch (CircularDependencyException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            try { resolver.Resolve(newGraph); }
+            catch (CircularDependencyException ex) { return BadRequest(ex.Message); }
 
-            _orchestrator.LoadNewMission(newGraph);
+            _manager.StartNewMission(missionId, newGraph);
 
-            var readyTasks = _orchestrator.GetReadyTasks();
-            return Ok(readyTasks);
+            var orchestrator = _manager.GetMissionOrchestrator(missionId);
+            return Ok(orchestrator.GetReadyTasks());
         }
     }
 }

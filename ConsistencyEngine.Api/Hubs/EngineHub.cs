@@ -6,30 +6,29 @@ namespace ConsistencyEngine.Api.Hubs
 {
     public class EngineHub : Hub
     {
-        private readonly TaskOrchestrator _orchestrator;
+        private readonly MissionManager _manager;
 
-        public EngineHub(TaskOrchestrator orchestrator)
+        public EngineHub(MissionManager manager)
         {
-            _orchestrator = orchestrator;
+            _manager = manager;
         }
 
-        public async Task ReportTaskDone(string taskId)
+        public async Task ReportTaskDone(string missionId, string taskId)
         {
-            _orchestrator.MarkTaskAsCompleted(taskId);
+            var orchestrator = _manager.GetMissionOrchestrator(missionId);
+            if (orchestrator == null) return;
 
-            var nextTasks = _orchestrator.GetReadyTasks();
-
-            await Clients.Caller.SendAsync("ExecuteNext", nextTasks);
+            orchestrator.MarkTaskAsCompleted(taskId);
+            await Clients.Caller.SendAsync("ExecuteNext", orchestrator.GetReadyTasks());
         }
 
-        public async Task ReportTaskFailed(string taskId)
+        public async Task ReportTaskFailed(string missionId, string taskId)
         {
-            _orchestrator.MarkTaskAsFailed(taskId);
+            var orchestrator = _manager.GetMissionOrchestrator(missionId);
+            if (orchestrator == null) return;
 
-            var nextTasks = _orchestrator.GetReadyTasks();
-
-            await Clients.Caller.SendAsync("ExecuteNext", nextTasks);
+            orchestrator.MarkTaskAsFailed(taskId);
+            await Clients.Caller.SendAsync("ExecuteNext", orchestrator.GetReadyTasks());
         }
-
     }
 }

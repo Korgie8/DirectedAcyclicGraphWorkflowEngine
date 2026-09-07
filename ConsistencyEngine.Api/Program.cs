@@ -9,8 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<ConsistencyGraph>();
-builder.Services.AddSingleton<TaskOrchestrator>();
+builder.Services.AddSingleton<MissionManager>();
 
 builder.Services.AddSignalR();
 
