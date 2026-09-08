@@ -16,6 +16,4 @@ Instead of relying on hardcoded scripts, this engine reads dynamic graph bluepri
     Real-Time Orchestration: Acts as the central brain, actively pushing "Ready" tasks via WebSockets to connected worker clients—whether those workers are background software threads or physical hardware controllers.
 
 ## TODO
-- In order to not lose progress a saving system must be integrated. If it crashes in middle of it it will get saved into Json to be able to continue where it crashed.
-- Optimization and Thread Safety and everything else
 - Fully flashed API calls.
