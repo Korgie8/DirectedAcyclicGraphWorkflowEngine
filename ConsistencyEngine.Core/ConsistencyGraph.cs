@@ -5,7 +5,7 @@ namespace ConsistencyEngine.Core
 {
     public class ConsistencyGraph
     {
-        private Dictionary<string, TaskNode> Nodes;
+        public Dictionary<string, TaskNode> Nodes { get; set; } = new Dictionary<string, TaskNode>();
 
         public ConsistencyGraph()
         {

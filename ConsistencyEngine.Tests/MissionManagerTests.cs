@@ -94,5 +94,67 @@ namespace ConsistencyEngine.Tests
             orchestratorB.GetReadyTasks().Should().ContainSingle(n => n.Id == "Laser1",
                 "because Mission B runs on a completely separate memory state than Mission A");
         }
+
+        [Fact]
+        public void MissionManagerTests_FunctionalityOfOneMission_ShouldReturnZeroDependencyTasks_SaveAndLoad()
+        {
+            ConsistencyGraph graph = new ConsistencyGraph();
+            TaskNode nodeA = new TaskNode("Motor1");
+            TaskNode nodeB = new TaskNode("Motor2");
+            TaskNode nodeC = new TaskNode("CloseClaw");
+
+            nodeC.AddDependency("Motor1");
+            nodeC.AddDependency("Motor2");
+
+            graph.AddNode(nodeA);
+            graph.AddNode(nodeB);
+            graph.AddNode(nodeC);
+
+            MissionManager missionManager = new MissionManager();
+            missionManager.StartNewMission("Test", graph);
+            TaskOrchestrator orchestrator = missionManager.GetMissionOrchestrator("Test");
+            List<TaskNode> readyTasks = orchestrator.GetReadyTasks();
+
+            readyTasks.Should().HaveCount(2);
+            readyTasks.Should().Contain(nodeA);
+            readyTasks.Should().Contain(nodeB);
+            readyTasks.Should().NotContain(nodeC);
+
+            nodeA.Status.Should().Be(NodeStatus.Ready);
+            nodeB.Status.Should().Be(NodeStatus.Ready);
+            nodeC.Status.Should().Be(NodeStatus.Pending);
+
+            orchestrator.MarkTaskAsCompleted(nodeA.Id);
+            readyTasks = orchestrator.GetReadyTasks();
+
+            readyTasks.Should().HaveCount(1);
+            readyTasks.Should().NotContain(nodeA);
+            readyTasks.Should().Contain(nodeB);
+            readyTasks.Should().NotContain(nodeC);
+
+            nodeA.Status.Should().Be(NodeStatus.Completed);
+            nodeB.Status.Should().Be(NodeStatus.Ready);
+            nodeC.Status.Should().Be(NodeStatus.Pending);
+
+
+            missionManager.LoadMission("Test");
+            TaskOrchestrator orchestratorLoaded = missionManager.GetMissionOrchestrator("Test");
+
+            TaskNode loadedNodeA = orchestratorLoaded.graph.GetNode(nodeA.Id);
+            TaskNode loadedNodeB = orchestratorLoaded.graph.GetNode(nodeB.Id);
+            TaskNode loadedNodeC = orchestratorLoaded.graph.GetNode(nodeC.Id);
+
+            orchestratorLoaded.MarkTaskAsCompleted(loadedNodeB.Id);
+            readyTasks = orchestratorLoaded.GetReadyTasks();
+
+            readyTasks.Should().HaveCount(1);
+            readyTasks.Should().NotContain(loadedNodeA);
+            readyTasks.Should().NotContain(loadedNodeB);
+            readyTasks.Should().Contain(loadedNodeC);
+
+            loadedNodeA.Status.Should().Be(NodeStatus.Completed);
+            loadedNodeB.Status.Should().Be(NodeStatus.Completed);
+            loadedNodeC.Status.Should().Be(NodeStatus.Ready);
+        }
     }
 }

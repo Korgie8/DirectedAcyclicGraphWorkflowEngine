@@ -34,5 +34,14 @@ namespace ConsistencyEngine.Api.Controllers
             var orchestrator = _manager.GetMissionOrchestrator(missionId);
             return Ok(orchestrator.GetReadyTasks());
         }
+
+        [HttpPost("load/{missionId}")]
+        public IActionResult LoadMission(string missionId)
+        {
+            _manager.LoadMission(missionId);
+
+            var orchestrator = _manager.GetMissionOrchestrator(missionId);
+            return Ok(orchestrator.GetReadyTasks());
+        }
     }
 }

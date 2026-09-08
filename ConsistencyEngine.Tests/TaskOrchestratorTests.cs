@@ -10,6 +10,8 @@ namespace ConsistencyEngine.Tests
         [Fact]
         public void Orchestrator_GetReadyTasks_WhenStarted_ShouldReturnZeroDependencyTasks()
         {
+            string expectedId = "Test";
+
             ConsistencyGraph graph = new ConsistencyGraph();
             TaskNode nodeA = new TaskNode("Motor1");
             TaskNode nodeB = new TaskNode("Motor2");
@@ -22,7 +24,7 @@ namespace ConsistencyEngine.Tests
             graph.AddNode(nodeB);
             graph.AddNode(nodeC);
 
-            TaskOrchestrator orchestrator = new TaskOrchestrator(graph);
+            TaskOrchestrator orchestrator = new TaskOrchestrator(graph, expectedId);
             List<TaskNode> readyTasks = orchestrator.GetReadyTasks();
 
             readyTasks.Should().HaveCount(2);
@@ -62,6 +64,8 @@ namespace ConsistencyEngine.Tests
         [Fact]
         public void Orchestrator_NodeFailed_ShouldCascadeCancelDownstreamTasks()
         {
+            string expectedId = "Test";
+
             ConsistencyGraph graph = new ConsistencyGraph();
             TaskNode nodeA = new TaskNode("Motor1");
             TaskNode nodeB = new TaskNode("Motor2");
@@ -82,7 +86,7 @@ namespace ConsistencyEngine.Tests
             graph.AddNode(nodeD);
             graph.AddNode(nodeE);
 
-            TaskOrchestrator orchestrator = new TaskOrchestrator(graph);
+            TaskOrchestrator orchestrator = new TaskOrchestrator(graph, expectedId);
 
             orchestrator.MarkTaskAsCompleted(nodeA.Id);
             orchestrator.MarkTaskAsCompleted(nodeB.Id);

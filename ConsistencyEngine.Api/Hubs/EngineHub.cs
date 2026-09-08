@@ -17,7 +17,7 @@ namespace ConsistencyEngine.Api.Hubs
         {
             var orchestrator = _manager.GetMissionOrchestrator(missionId);
             if (orchestrator == null) return;
-
+            
             orchestrator.MarkTaskAsCompleted(taskId);
             await Clients.Caller.SendAsync("ExecuteNext", orchestrator.GetReadyTasks());
         }
