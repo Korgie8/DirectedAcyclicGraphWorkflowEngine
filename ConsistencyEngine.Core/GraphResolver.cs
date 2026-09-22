@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace ConsistencyEngine.Core
@@ -45,7 +46,10 @@ namespace ConsistencyEngine.Core
             while (ZeroInDegreeQueue.Count > 0)
             {
                 string currentId = ZeroInDegreeQueue.Dequeue();
-                sortedNodes.Add(graph.GetNode(currentId));
+                TaskNode node = graph.GetNode(currentId) 
+                    ?? throw new KeyNotFoundException($"Task node with ID '{currentId}' was not found in the graph.");
+                
+                sortedNodes.Add(node);
 
                 foreach (var neighborId in AdjacencyList[currentId])
                 {

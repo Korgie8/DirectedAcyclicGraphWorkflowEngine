@@ -20,9 +20,9 @@ namespace ConsistencyEngine.Core
             TaskOrchestrators[id] = orchestrator;
         }
 
-        public TaskOrchestrator GetMissionOrchestrator(string id)
+        public TaskOrchestrator? GetMissionOrchestrator(string id)
         {
-            return TaskOrchestrators.TryGetValue(id, out TaskOrchestrator orchestrator) ? orchestrator : null;
+            return TaskOrchestrators.TryGetValue(id, out TaskOrchestrator? orchestrator) ? orchestrator : null;
         }
     }
 }

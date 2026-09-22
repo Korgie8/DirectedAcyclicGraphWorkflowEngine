@@ -9,7 +9,7 @@ namespace ConsistencyEngine.Core
     {
         private readonly string _folderPath = "MissionData";
         
-        public SavingManager(string path = null)
+        public SavingManager(string? path = null)
         {
             if (!string.IsNullOrEmpty(path))
             {
@@ -18,6 +18,7 @@ namespace ConsistencyEngine.Core
 
             EnsureFolderExists();
         }
+        
         private void EnsureFolderExists()
         {
             if (!Directory.Exists(_folderPath))
@@ -42,7 +43,8 @@ namespace ConsistencyEngine.Core
             }
 
             string json = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<ConsistencyGraph>(json);
+            return JsonSerializer.Deserialize<ConsistencyGraph>(json)
+                ?? throw new InvalidOperationException($"Failed to deserialize graph from file: {filePath}");
         }
     }
 }

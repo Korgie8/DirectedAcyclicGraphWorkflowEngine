@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text.Json;
 
 namespace ConsistencyEngine.Core
 {
@@ -20,9 +19,9 @@ namespace ConsistencyEngine.Core
             }
         }
 
-        public TaskNode GetNode(string id)
+        public TaskNode? GetNode(string id)
         {
-            Nodes.TryGetValue(id, out TaskNode node);
+            Nodes.TryGetValue(id, out TaskNode? node);
             return node;
         }
 

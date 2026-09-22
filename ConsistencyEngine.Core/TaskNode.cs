@@ -14,7 +14,7 @@ namespace ConsistencyEngine.Core
 
     public class TaskNode
     {
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         public List<string> Dependencies { get; set; }
         public NodeStatus Status { get; set; }
 

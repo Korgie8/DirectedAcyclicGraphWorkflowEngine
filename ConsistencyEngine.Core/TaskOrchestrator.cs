@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace ConsistencyEngine.Core
@@ -40,7 +41,7 @@ namespace ConsistencyEngine.Core
 
                     AdjacencyList[depId].Add(node.Id);
 
-                    TaskNode dependencyNode = graph.GetNode(depId);
+                    TaskNode? dependencyNode = graph.GetNode(depId);
                     if (dependencyNode != null && dependencyNode.Status != NodeStatus.Completed)
                     {
                         if (!InDegree.ContainsKey(node.Id))
@@ -53,9 +54,9 @@ namespace ConsistencyEngine.Core
 
             foreach (var kvp in InDegree)
             {
-                TaskNode task = graph.GetNode(kvp.Key);
+                TaskNode? task = graph.GetNode(kvp.Key);
 
-                if (kvp.Value == 0 && task.Status != NodeStatus.Completed)
+                if (task != null && kvp.Value == 0 && task.Status != NodeStatus.Completed)
                 {
                     ReadyNodes.Add(kvp.Key);
                     task.Status = NodeStatus.Ready;
@@ -67,7 +68,7 @@ namespace ConsistencyEngine.Core
         {
             lock (_stateLock)
             {
-                TaskNode task = graph.GetNode(taskId);
+                TaskNode? task = graph.GetNode(taskId);
 
                 if (task != null && task.Status == NodeStatus.Completed) 
                     return;
@@ -87,8 +88,11 @@ namespace ConsistencyEngine.Core
                     if (InDegree[neighborId] == 0)
                     {
                         ReadyNodes.Add(neighborId);
-                        TaskNode neighborTask = graph.GetNode(neighborId);
-                        neighborTask.Status = NodeStatus.Ready;
+                        TaskNode? neighborTask = graph.GetNode(neighborId);
+                        if (neighborTask != null)
+                        {
+                            neighborTask.Status = NodeStatus.Ready;
+                        }
                     }
                 }
 
@@ -100,34 +104,44 @@ namespace ConsistencyEngine.Core
         {
             lock (_stateLock)
             {
-                TaskNode originTask = graph.GetNode(failedTaskId);
+                TaskNode? originTask = graph.GetNode(failedTaskId);
 
                 if (originTask != null && originTask.Status == NodeStatus.Failed) 
                     return;
 
-                originTask.Status = NodeStatus.Failed;
+                if (originTask != null)
+                {
+                    originTask.Status = NodeStatus.Failed;
+                }
+                
                 ReadyNodes.Remove(failedTaskId);
 
                 Queue<string> cancelQueue = new Queue<string>();
 
-                foreach (var neighborId in AdjacencyList[failedTaskId])
+                if (AdjacencyList.TryGetValue(failedTaskId, out var adjacentList))
                 {
-                    cancelQueue.Enqueue(neighborId);
+                    foreach (var neighborId in adjacentList)
+                    {
+                        cancelQueue.Enqueue(neighborId);
+                    }
                 }
 
                 while (cancelQueue.Count > 0)
                 {
                     string currentId = cancelQueue.Dequeue();
-                    TaskNode nodeToCancel = graph.GetNode(currentId);
+                    TaskNode? nodeToCancel = graph.GetNode(currentId);
 
-                    if (nodeToCancel.Status != NodeStatus.Cancelled)
+                    if (nodeToCancel != null && nodeToCancel.Status != NodeStatus.Cancelled)
                     {
                         nodeToCancel.Status = NodeStatus.Cancelled;
                         ReadyNodes.Remove(currentId);
 
-                        foreach (var childId in AdjacencyList[currentId])
+                        if (AdjacencyList.TryGetValue(currentId, out var childList))
                         {
-                            cancelQueue.Enqueue(childId);
+                            foreach (var childId in childList)
+                            {
+                                cancelQueue.Enqueue(childId);
+                            }
                         }
                     }
                 }
@@ -140,14 +154,24 @@ namespace ConsistencyEngine.Core
         {
             lock (_stateLock)
             {
-                return ReadyNodes.ConvertAll(id => graph.GetNode(id));
+                var tasks = new List<TaskNode>();
+                foreach (var id in ReadyNodes)
+                {
+                    var node = graph.GetNode(id);
+                    if (node != null)
+                    {
+                        tasks.Add(node);
+                    }
+                }
+                return tasks;
             }
         }
 
-        public TaskNode GetReadyTask()
+        public TaskNode? GetReadyTask()
         {
             lock (_stateLock)
             {
+                if (ReadyNodes.Count == 0) return null;
                 return graph.GetNode(ReadyNodes[0]);
             }
         }
