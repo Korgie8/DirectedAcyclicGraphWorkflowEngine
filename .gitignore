@@ -1,0 +1,25 @@
+# .NET build outputs and caches (all subprojects)
+**/[Bb]in/
+**/[Oo]bj/
+
+# Visual Studio / Rider / VS Code
+.vscode/
+.vs/
+*.user
+*.suo
+*.ide/
+
+# Python test simulation caches & venvs
+**/__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Local app configuration
+**/appsettings.Development.json
+
+# OS junk
+.DS_Store
+Thumbs.db
