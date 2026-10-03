@@ -1,0 +1,1 @@
+{"Nodes":{"BootSensors":{"Id":"BootSensors","Dependencies":[],"Status":3},"PowerMotors":{"Id":"PowerMotors","Dependencies":[],"Status":3},"MoveArm":{"Id":"MoveArm","Dependencies":["BootSensors","PowerMotors"],"Status":3},"EngageClaw":{"Id":"EngageClaw","Dependencies":["MoveArm"],"Status":3},"RetractArm":{"Id":"RetractArm","Dependencies":["EngageClaw"],"Status":3}}}
