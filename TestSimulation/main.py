@@ -484,7 +484,7 @@ class DAGStudioApp:
             except Exception as exc:
                 self.log("ERROR", f"API unreachable at {BASE_URL}: {exc}")
                 self.banner_title = "⚠ BACKEND SERVER UNREACHABLE"
-                self.banner_subtitle = f"Run 'dotnet run --project ConsistencyEngine.Api' in your terminal first ({BASE_URL})"
+                self.banner_subtitle = f"Run 'dotnet run --project DirectedAcyclicGraphWorkflowEngine.Api' in your terminal first ({BASE_URL})"
                 self.banner_color = "#f43f5e"
 
         threading.Thread(target=_start_request, daemon=True).start()

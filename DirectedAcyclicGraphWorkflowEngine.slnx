@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="DirectedAcyclicGraphWorkflowEngine.Api/DirectedAcyclicGraphWorkflowEngine.Api.csproj" />
+  <Project Path="DirectedAcyclicGraphWorkflowEngine.Core/DirectedAcyclicGraphWorkflowEngine.Core.csproj" />
+  <Project Path="DirectedAcyclicGraphWorkflowEngine.Tests/DirectedAcyclicGraphWorkflowEngine.Tests.csproj" />
+</Solution>

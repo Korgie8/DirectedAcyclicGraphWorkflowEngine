@@ -23,3 +23,8 @@ ENV/
 # OS junk
 .DS_Store
 Thumbs.db
+DirectedAcyclicGraphWorkflowEngine.Api/MissionData/*
+!DirectedAcyclicGraphWorkflowEngine.Api/MissionData/.gitkeep
+
+# Obsidian settings
+.obsidian/
