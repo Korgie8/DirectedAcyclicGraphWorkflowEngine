@@ -13,12 +13,12 @@
 # What is it
 
 ## Overview
-	What is being presented before thy eyes is an API-controlled Workflow Engine for a given set of tasks (mission) sorted and prepared by a DAG.
+What is being presented before thy eyes is an API-controlled Workflow Engine for a given set of tasks (mission) sorted and prepared by a DAG.
 
 ![Simulation Demo](Assets/demo.gif)
 
 ### How does it work (In simple terms)
-The whole project, except the frontend, is made in C# and the order of functionality could be explained like this:
+The whole project, except the frontend, is made in C#, and the order of functionality could be explained like this:
 1. **Setup:** Initializes the mission by receiving a blueprint payload of tasks (nodes) and their dependencies via a POST request to the REST API (`/api/engine/start/{missionId}`), or resumes an interrupted one via `/api/engine/load/{missionId}`.
 2. **Validation & DAG (Kahn's Algorithm):** The Engine calculates dependencies across the blueprint. It maps them (`InDegree`) for every task. If it finds a circular dependency, it aborts with a `400 Bad Request`. Otherwise, tasks with 0 dependencies are queued as `Ready`.
 3. **Execution Loop (WebSockets):** A state machine tracks tasks dynamically (`Pending`, `Ready`, `Running`, `Completed`, `Failed`, `Cancelled`) — updated by the frontend through SignalR (`ReportTaskDone` / `ReportTaskFailed`). When a task succeeds via the WebSocket, the engine subtracts dependencies from its neighbors. If a neighbor reaches 0 dependencies, it is instantly pushed back to the client via SignalR (`ExecuteNext`).
@@ -80,7 +80,7 @@ The second half, yet equally important, is the manipulation of the DAG data itse
 This half could be divided into 3 layers.
 Each represents a vital role in maintaining workflow and balance. One can work alone, but will never be fulfilled without the others.
 
-In operational order they are as follows:
+In operational order, they are as follows:
 
 #### REST API & WebSockets
 The skin of this half is the API — located in the `ConsistencyEngine.Api` folder.
@@ -100,7 +100,7 @@ Under the hood, this involves:
 - **Multi-Mission Possibility:** Thanks to `MissionManager.cs`, the Brain isn't limited to a single workflow. It can spin up, track, and manage multiple distinct missions simultaneously in completely isolated orchestrators without them ever interfering with each other.
 
 #### Saving System
-The backbone of any system is saving — located inside of `SavingManager.cs`. 
+The backbone of any system is saving — located inside  `SavingManager.cs`. 
 This part ensures that when a server crashes, the entire Graph with its progress is saved. It snapshots the DAG into JSON format upon every single state change, allowing the engine to reload complex missions via `/api/engine/load/{missionId}` and recalculate `InDegree` counts around already-completed tasks so execution resumes exactly where it was interrupted.
 
 ___
@@ -157,7 +157,7 @@ Once the C# engine is in motion, you need a client to interact with it. Open a *
 cd TestSimulation
 python main.py
 ```
-This script acts as the frontend, pushing a mock graph to the engine and showing in real time the execution in the UI.
+This script acts as the frontend, pushing a mock graph to the engine and showing the execution in real time in the UI.
 
 ___
 
