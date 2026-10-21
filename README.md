@@ -20,7 +20,7 @@ What is being presented before thy eyes is an API-controlled Workflow Engine for
 ### How does it work (In simple terms)
 The whole project, except the frontend, is made in C#, and the order of functionality could be explained like this:
 1. **Setup:** Initializes the mission by receiving a blueprint payload of tasks (nodes) and their dependencies via a POST request to the REST API (`/api/engine/start/{missionId}`), or resumes an interrupted one via `/api/engine/load/{missionId}`.
-2. **Validation & DAG (Kahn's Algorithm):** The Engine calculates dependencies across the blueprint. It maps them (`InDegree`) for every task. If it finds a circular dependency, it aborts with a `400 Bad Request`. Otherwise, tasks with 0 dependencies are queued as `Ready`.
+2. **Validation & DAG ([Kahn's Algorithm](https://www.geeksforgeeks.org/dsa/kahns-algorithm-in-python/)):** The Engine calculates dependencies across the blueprint. It maps them (`InDegree`) for every task. If it finds a circular dependency, it aborts with a `400 Bad Request`. Otherwise, tasks with 0 dependencies are queued as `Ready`.
 3. **Execution Loop (WebSockets):** A state machine tracks tasks dynamically (`Pending`, `Ready`, `Running`, `Completed`, `Failed`, `Cancelled`) — updated by the frontend through SignalR (`ReportTaskDone` / `ReportTaskFailed`). When a task succeeds via the WebSocket, the engine subtracts dependencies from its neighbors. If a neighbor reaches 0 dependencies, it is instantly pushed back to the client via SignalR (`ExecuteNext`).
 4. **Simulation / Showcase:** A `main.py` file located in the `TestSimulation` folder acts as a simulated client to run and visualize the entire process.  
    *Note: If someone wants to use this engine in reality, they have to make the frontend/client themselves; that Python file is purely a showcase.*
@@ -65,7 +65,7 @@ When a client initializes a mission, it sends a JSON blueprint formatted like th
 ```
 
 In order to create and validate the graph, the system uses the following algorithm:
-- **Kahn's Algorithm (Topological Sorting):** 
+- **[Kahn's Algorithm](https://www.geeksforgeeks.org/dsa/kahns-algorithm-in-python/) (Topological Sorting):** 
   1. It tracks dependencies (`InDegree`) from the initial blueprint to create the graph. 
   2. If a circular dependency is detected (cycle), it immediately throws a `CircularDependencyException`, preventing deadlocks before execution even begins.
 
@@ -92,10 +92,10 @@ The brain is located in `ConsistencyEngine.Core`.
 
 It does a simple yet important job: it takes the commands from the frontend, validates them, creates a DAG from them, and afterwards executes it and returns the next command. 
 Under the hood, this involves:
-- **Directed Acyclic Graph (DAG):** A graph created from the task (`ConsistencyGraph`) that contains all nodes and dependencies necessary for execution. Further explained in the **Directed Acyclic Graph** section above.
+- **[Directed Acyclic Graph](https://en.wikipedia.org/wiki/Directed_acyclic_graph) (DAG):** A graph created from the task (`ConsistencyGraph`) that contains all nodes and dependencies necessary for execution. Further explained in the **Directed Acyclic Graph** section above.
 - **State Machine:** It manages a strict state machine (`NodeStatus`) to track the exact lifecycle of every task — whether it is `Pending`, `Ready`, `Running`, `Completed`, `Failed`, or `Cancelled`.
 - **Live Execution (DAG):** On a node update from the logic above, `TaskOrchestrator` updates the whole graph based on the state and the dependencies of the updated node.
-- **Breadth-First Search (BFS):** If a task fails, a queue traversal is used to cascade the failure through the graph, instantly finding and canceling all unreachable downstream nodes.
+- **[Breadth-First Search](https://www.geeksforgeeks.org/dsa/breadth-first-search-or-bfs-for-a-graph/) (BFS):** If a task fails, a queue traversal is used to cascade the failure through the graph, instantly finding and canceling all unreachable downstream nodes.
 - **Monitor (Thread) Locks:** Real-time thread-safe concurrency (`_stateLock`) ensures that if multiple clients report task completions simultaneously, the graph state is safely updated and never corrupted.
 - **Multi-Mission Possibility:** Thanks to `MissionManager.cs`, the Brain isn't limited to a single workflow. It can spin up, track, and manage multiple distinct missions simultaneously in completely isolated orchestrators without them ever interfering with each other.
 
