@@ -18,7 +18,7 @@ What is being presented before thine eyes is an API-controlled Workflow Engine f
 ![Simulation Demo](Assets/demo.gif)
 
 ### How does it work (In simple terms)
-The whole project, except the frontend, is made in C# and the order of functionality could be explained like this:
+The whole project, except the frontend, is made in C#, and the order of functionality could be explained like this:
 1. **Setup:** Initializes the mission by receiving a blueprint payload of tasks (nodes) and their dependencies via a POST request to the REST API (`/api/engine/start/{missionId}`), or resumes an interrupted one via `/api/engine/load/{missionId}`.
 2. **Validation & DAG (Kahn's Algorithm):** The Engine calculates dependencies across the blueprint. It maps them (`InDegree`) for every task. If it finds a circular dependency, it aborts with a `400 Bad Request`. Otherwise, tasks with 0 dependencies are queued as `Ready`.
 3. **Execution Loop (WebSockets):** A state machine tracks tasks dynamically (`Pending`, `Ready`, `Running`, `Completed`, `Failed`, `Cancelled`) — updated by the frontend through SignalR (`ReportTaskDone` / `ReportTaskFailed`). When a task succeeds via the WebSocket, the engine subtracts dependencies from its neighbors. If a neighbor reaches 0 dependencies, it is instantly pushed back to the client via SignalR (`ExecuteNext`).
@@ -157,7 +157,7 @@ Once the C# engine is in motion, you need a client to interact with it. Open a *
 cd TestSimulation
 python main.py
 ```
-This script acts as the frontend, pushing a mock graph to the engine and showing in real time the execution in the UI.
+This script acts as the frontend, pushing a mock graph to the engine and showing the execution in real time in the UI.
 
 ___
 
@@ -179,10 +179,10 @@ ___
 
 ## My thoughts
 
-Keeping this project within the bounds of my actual skill at the time of making required few deliberate trade-offs to be put in place.
+Keeping this project within the bounds of my actual skill at the time of making required a few deliberate trade-offs to be put in place.
 
 ### Durability vs. I/O Throughput
-To guarantee mission survival when the server crashes without the massive overhead of an external database, the engine snapshots the entire graph into a local JSON file upon every state change. Luckily, as this disk write happens inside the orchestrator's thread lock ((`_stateLock`), absolute data integrity is guaranteed and race conditions are prevented. However, it is not all sunshine and rainbows; the cost of this safety is an I/O bottleneck. On massive graphs with hundreds of parallel nodes completing simultaneously, threads will queue up waiting for that very disk-saving operation to finish.
+To guarantee mission survival when the server crashes without the massive overhead of an external database, the engine snapshots the entire graph into a local JSON file upon every state change. Luckily, as this disk write happens inside the orchestrator's thread lock (`_stateLock`), absolute data integrity is guaranteed, and race conditions are prevented. However, it is not all sunshine and rainbows; the cost of this safety is an I/O bottleneck. On massive graphs with hundreds of parallel nodes completing simultaneously, threads will queue up waiting for that very disk-saving operation to finish.
 
 
 
