@@ -1,15 +1,16 @@
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace DirectedAcyclicGraphWorkflowEngine.Core
 {
     public class MissionManager
     {
-        public Dictionary<string, TaskOrchestrator> TaskOrchestrators { get; set; } = new Dictionary<string, TaskOrchestrator>();
+        public ConcurrentDictionary<string, TaskOrchestrator> TaskOrchestrators { get; set; } = new ConcurrentDictionary<string, TaskOrchestrator>();
 
         public void StartNewMission(string id, ConsistencyGraph graph)
         {
             var orchestrator = new TaskOrchestrator(graph, id);
-            TaskOrchestrators[id] = orchestrator;
+            TaskOrchestrators.TryAdd(id, orchestrator);
         }
 
         public void LoadMission(string id)
@@ -17,7 +18,7 @@ namespace DirectedAcyclicGraphWorkflowEngine.Core
             SavingManager savingManager = new SavingManager();
             ConsistencyGraph graph = savingManager.LoadGraph(id);
             var orchestrator = new TaskOrchestrator(graph, id);
-            TaskOrchestrators[id] = orchestrator;
+            TaskOrchestrators.TryAdd(id, orchestrator);
         }
 
         public TaskOrchestrator? GetMissionOrchestrator(string id)
