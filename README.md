@@ -15,7 +15,23 @@
 ## Overview
 What is being presented before thine eyes is an API-controlled Workflow Engine for a given set of tasks (mission) sorted and prepared by a DAG.
 
-![Simulation Demo](Assets/demo.gif)
+<p align="center">
+  <img src="Assets/DAG-Normal_Behaviour.gif" alt="DAG successful Demo" width="600" />
+  <br />
+  <em>The animation above demonstrates **successful** execution.</em>
+</p>
+
+<p align="center">
+  <img src="Assets/DAG-Failed_Behaviour.gif" alt="DAG failed Demo" width="600" />
+  <br />
+  <em>The animation above demonstrates **failed** execution.</em>
+</p>
+
+<p align="center">
+  <img src="Assets/DAG-Cyclical_Behaviour.gif" alt="DAG cyclical Demo" width="600" />
+  <br />
+  <em>The animation above demonstrates **cyclical** execution.</em>
+</p>
 
 ### How does it work (In simple terms)
 The whole project, except the frontend, is made in C#, and the order of functionality could be explained like this:
@@ -183,8 +199,6 @@ Keeping this project within the bounds of my actual skill at the time of making 
 
 ### Durability vs. I/O Throughput
 To guarantee mission survival when the server crashes without the massive overhead of an external database, the engine snapshots the entire graph into a local JSON file upon every state change. Luckily, as this disk write happens inside the orchestrator's thread lock (`_stateLock`), absolute data integrity is guaranteed, and race conditions are prevented. However, it is not all sunshine and rainbows; the cost of this safety is an I/O bottleneck. On massive graphs with hundreds of parallel nodes completing simultaneously, threads will queue up waiting for that very disk-saving operation to finish.
-
-
 
 ### Client-Driven Recovery vs Autonomous Server Healing
 
