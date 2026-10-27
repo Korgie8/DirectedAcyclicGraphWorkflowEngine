@@ -13,14 +13,14 @@
 # What is it
 
 ## Overview
-What is being presented before thy eyes is an API-controlled Workflow Engine for a given set of tasks (mission) sorted and prepared by a DAG.
+What is being presented before thine eyes is an API-controlled Workflow Engine for a given set of tasks (mission) sorted and prepared by a DAG.
 
 ![Simulation Demo](Assets/demo.gif)
 
 ### How does it work (In simple terms)
-The whole project, except the frontend, is made in C#, and the order of functionality could be explained like this:
+The whole project, except the frontend, is made in C# and the order of functionality could be explained like this:
 1. **Setup:** Initializes the mission by receiving a blueprint payload of tasks (nodes) and their dependencies via a POST request to the REST API (`/api/engine/start/{missionId}`), or resumes an interrupted one via `/api/engine/load/{missionId}`.
-2. **Validation & DAG ([Kahn's Algorithm](https://www.geeksforgeeks.org/dsa/kahns-algorithm-in-python/)):** The Engine calculates dependencies across the blueprint. It maps them (`InDegree`) for every task. If it finds a circular dependency, it aborts with a `400 Bad Request`. Otherwise, tasks with 0 dependencies are queued as `Ready`.
+2. **Validation & DAG (Kahn's Algorithm):** The Engine calculates dependencies across the blueprint. It maps them (`InDegree`) for every task. If it finds a circular dependency, it aborts with a `400 Bad Request`. Otherwise, tasks with 0 dependencies are queued as `Ready`.
 3. **Execution Loop (WebSockets):** A state machine tracks tasks dynamically (`Pending`, `Ready`, `Running`, `Completed`, `Failed`, `Cancelled`) — updated by the frontend through SignalR (`ReportTaskDone` / `ReportTaskFailed`). When a task succeeds via the WebSocket, the engine subtracts dependencies from its neighbors. If a neighbor reaches 0 dependencies, it is instantly pushed back to the client via SignalR (`ExecuteNext`).
 4. **Simulation / Showcase:** A `main.py` file located in the `TestSimulation` folder acts as a simulated client to run and visualize the entire process.  
    *Note: If someone wants to use this engine in reality, they have to make the frontend/client themselves; that Python file is purely a showcase.*
@@ -65,7 +65,7 @@ When a client initializes a mission, it sends a JSON blueprint formatted like th
 ```
 
 In order to create and validate the graph, the system uses the following algorithm:
-- **[Kahn's Algorithm](https://www.geeksforgeeks.org/dsa/kahns-algorithm-in-python/) (Topological Sorting):** 
+- **Kahn's Algorithm (Topological Sorting):** 
   1. It tracks dependencies (`InDegree`) from the initial blueprint to create the graph. 
   2. If a circular dependency is detected (cycle), it immediately throws a `CircularDependencyException`, preventing deadlocks before execution even begins.
 
@@ -80,34 +80,34 @@ The second half, yet equally important, is the manipulation of the DAG data itse
 This half could be divided into 3 layers.
 Each represents a vital role in maintaining workflow and balance. One can work alone, but will never be fulfilled without the others.
 
-In operational order, they are as follows:
+In operational order they are as follows:
 
 #### REST API & WebSockets
-The skin of this half is the API — located in the `DirectedAcyclicGraphWorkflowEngine.Api` folder.
+The skin of this half is the API — located in the `ConsistencyEngine.Api` folder.
 - **REST API (`EngineController`):** Initial blueprint payloads (with automatic `[Required]` model validation) and mission recovery requests (`/start/{missionId}` and `/load/{missionId}`) are sent through here.
 - **SignalR WebSocket (`EngineHub`):** Task completions and failures are reported here, and any newly unlocked commands (`ExecuteNext`) are pushed directly to the frontend — without waiting to be asked for them.
 
 #### Manipulation of the Data
-The brain is located in `DirectedAcyclicGraphWorkflowEngine.Core`.
+The brain is located in `ConsistencyEngine.Core`.
 
 It does a simple yet important job: it takes the commands from the frontend, validates them, creates a DAG from them, and afterwards executes it and returns the next command. 
 Under the hood, this involves:
-- **[Directed Acyclic Graph](https://en.wikipedia.org/wiki/Directed_acyclic_graph) (DAG):** A graph created from the task (`ConsistencyGraph`) that contains all nodes and dependencies necessary for execution. Further explained in the **Directed Acyclic Graph** section above.
+- **Directed Acyclic Graph (DAG):** A graph created from the task (`ConsistencyGraph`) that contains all nodes and dependencies necessary for execution. Further explained in the **Directed Acyclic Graph** section above.
 - **State Machine:** It manages a strict state machine (`NodeStatus`) to track the exact lifecycle of every task — whether it is `Pending`, `Ready`, `Running`, `Completed`, `Failed`, or `Cancelled`.
 - **Live Execution (DAG):** On a node update from the logic above, `TaskOrchestrator` updates the whole graph based on the state and the dependencies of the updated node.
-- **[Breadth-First Search](https://www.geeksforgeeks.org/dsa/breadth-first-search-or-bfs-for-a-graph/) (BFS):** If a task fails, a queue traversal is used to cascade the failure through the graph, instantly finding and canceling all unreachable downstream nodes.
+- **Breadth-First Search (BFS):** If a task fails, a queue traversal is used to cascade the failure through the graph, instantly finding and canceling all unreachable downstream nodes.
 - **Monitor (Thread) Locks:** Real-time thread-safe concurrency (`_stateLock`) ensures that if multiple clients report task completions simultaneously, the graph state is safely updated and never corrupted.
 - **Multi-Mission Possibility:** Thanks to `MissionManager.cs`, the Brain isn't limited to a single workflow. It can spin up, track, and manage multiple distinct missions simultaneously in completely isolated orchestrators without them ever interfering with each other.
 
 #### Saving System
-The backbone of any system is saving — located inside  `SavingManager.cs`. 
+The backbone of any system is saving — located inside of `SavingManager.cs`. 
 This part ensures that when a server crashes, the entire Graph with its progress is saved. It snapshots the DAG into JSON format upon every single state change, allowing the engine to reload complex missions via `/api/engine/load/{missionId}` and recalculate `InDegree` counts around already-completed tasks so execution resumes exactly where it was interrupted.
 
 ___
 ...and its purpose is to execute a given mission in the most suitable and fastest order based on the frontend behavior and to prevent any illogical errors in commands — for robots or any software with the need of proper execution. It can also be used to locate any cyclic mistakes in a given task (timeline execution order).
 
 ## Additional Info
-- **Tests:** This project was implemented using the Test-Driven Development (TDD) method, meaning every piece of backend logic (except the API) is verified by individual unit tests located inside the `DirectedAcyclicGraphWorkflowEngine.Tests` folder.
+- **Tests:** This project was implemented using the Test-Driven Development (TDD) method, meaning every piece of backend logic (except the API) is verified by individual unit tests located inside the `ConsistencyEngine.Tests` folder.
 
 </details>
 
@@ -122,8 +122,8 @@ To use this given software, it must firstly be brought to life. This can be achi
 **Primo**
 Clone the repository onto your machine of choice:
 ```bash
-git clone https://github.com/Korgie8/DirectedAcyclicGraphWorkflowEngine.git
-cd DirectedAcyclicGraphWorkflowEngine
+git clone https://github.com/Korgie8/ConsistencyEngine.git
+cd ConsistencyEngine
 ```
 
 **Secundo**
@@ -144,7 +144,7 @@ Save your breath; one last step is still ahead of us:
 
 Open a terminal in the root folder and start the C# engine by targeting the API project:
 ```bash
-dotnet run --project DirectedAcyclicGraphWorkflowEngine.Api
+dotnet run --project ConsistencyEngine.Api
 ```
 *(This automatically compiles the binaries, mounts the REST API, and opens the SignalR WebSocket hub).*
 
@@ -157,7 +157,7 @@ Once the C# engine is in motion, you need a client to interact with it. Open a *
 cd TestSimulation
 python main.py
 ```
-This script acts as the frontend, pushing a mock graph to the engine and showing the execution in real time in the UI.
+This script acts as the frontend, pushing a mock graph to the engine and showing in real time the execution in the UI.
 
 ___
 
@@ -173,12 +173,31 @@ ___
 
 ## Built With
 - **C# / .NET 8.0**
-  - **Backend**
-  - **SignalR WebSocket & REST API**
-  - **Tests — TDD (xUnit)**
+- **ASP.NET Core & SignalR** (REST API & WebSocket)
+- **Tests — TDD (xUnit & FluentAssertions)**
 - **Python** (Test simulation visualizer)
 
 ## My thoughts
 
+Keeping this project within the bounds of my actual skill at the time of making required few deliberate trade-offs to be put in place.
+
+### Durability vs. I/O Throughput
+To guarantee mission survival when the server crashes without the massive overhead of an external database, the engine snapshots the entire graph into a local JSON file upon every state change. Luckily, as this disk write happens inside the orchestrator's thread lock ((`_stateLock`), absolute data integrity is guaranteed and race conditions are prevented. However, it is not all sunshine and rainbows; the cost of this safety is an I/O bottleneck. On massive graphs with hundreds of parallel nodes completing simultaneously, threads will queue up waiting for that very disk-saving operation to finish.
+
+
+
+### Client-Driven Recovery vs Autonomous Server Healing
+
+While the server diligently handles graph saving to the disk, it does not automatically recover interrupted missions upon reboot. Instead, the backend waits in a blank state until the client explicitly calls the `/load/{missionId}` API endpoint to get back on track.
+
+This decision made the backend significantly simpler, but it shifted the responsibility of crash-recovery coordination entirely onto the client. Luckily, sends already has a built-in solution via automatic time-based pinging of the frontend.
+
+### Future Roadmap
+
+If I were to continue developing this project, I would definitely start with those points:
+- **Asynchronous Persistence:** Replacing synchronous full-graph JSON dumps with an asynchronous database (such as PostgreSQL) or an append-only event log outside the critical thread lock.
+- **`Running` Node Status:** Utilizing the `Running` node status to track when a client has claimed a task, to safely automatically retry or fail tasks or to provide more information.
+- **Multi-Client Synchronization:** Upgrading the SignalR hub to use mission-specific group broadcasting instead of 1-to-1 client replies. This involves updating the backend logic — specifically handling client connections, joins, and disconnects — to adapt the engine for multi-client workflow.
+
 ## Acknowledgements
-All algorithms and logic inside `DirectedAcyclicGraphWorkflowEngine.Core`, tests inside `DirectedAcyclicGraphWorkflowEngine.Tests`, and the API inside `DirectedAcyclicGraphWorkflowEngine.Api` were implemented by hand. In contrast, the simulation layer (`main.py` located in the `TestSimulation` folder) used to showcase the project was generated entirely by AI.
+All algorithms and logic inside `ConsistencyEngine.Core`, tests inside `ConsistencyEngine.Tests`, and the API inside `ConsistencyEngine.Api` were implemented by hand. In contrast, the simulation layer (`main.py` located in the `TestSimulation` folder) used to showcase the project was generated entirely by AI.
