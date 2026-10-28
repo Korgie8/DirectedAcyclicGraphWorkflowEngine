@@ -1,6 +1,0 @@
-@ConsistencyEngine.Api_HostAddress = http://localhost:5147
-
-GET {{ConsistencyEngine.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
