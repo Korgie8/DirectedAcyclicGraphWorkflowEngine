@@ -99,12 +99,12 @@ Each represents a vital role in maintaining workflow and balance. One can work a
 In operational order they are as follows:
 
 #### REST API & WebSockets
-The skin of this half is the API — located in the `ConsistencyEngine.Api` folder.
+The skin of this half is the API — located in the `DirectedAcyclicGraphWorkflowEngine.Api` folder.
 - **REST API (`EngineController`):** Initial blueprint payloads (with automatic `[Required]` model validation) and mission recovery requests (`/start/{missionId}` and `/load/{missionId}`) are sent through here.
 - **SignalR WebSocket (`EngineHub`):** Task completions and failures are reported here, and any newly unlocked commands (`ExecuteNext`) are pushed directly to the frontend — without waiting to be asked for them.
 
 #### Manipulation of the Data
-The brain is located in `ConsistencyEngine.Core`.
+The brain is located in `DirectedAcyclicGraphWorkflowEngine.Core`.
 
 It does a simple yet important job: it takes the commands from the frontend, validates them, creates a DAG from them, and afterwards executes it and returns the next command. 
 Under the hood, this involves:
@@ -123,7 +123,7 @@ ___
 ...and its purpose is to execute a given mission in the most suitable and fastest order based on the frontend behavior and to prevent any illogical errors in commands — for robots or any software with the need of proper execution. It can also be used to locate any cyclic mistakes in a given task (timeline execution order).
 
 ## Additional Info
-- **Tests:** This project was implemented using the Test-Driven Development (TDD) method, meaning every piece of backend logic (except the API) is verified by individual unit tests located inside the `ConsistencyEngine.Tests` folder.
+- **Tests:** This project was implemented using the Test-Driven Development (TDD) method, meaning every piece of backend logic (except the API) is verified by individual unit tests located inside the `DirectedAcyclicGraphWorkflowEngine.Tests` folder.
 
 </details>
 
@@ -138,8 +138,8 @@ To use this given software, it must firstly be brought to life. This can be achi
 **Primo**
 Clone the repository onto your machine of choice:
 ```bash
-git clone https://github.com/Korgie8/ConsistencyEngine.git
-cd ConsistencyEngine
+git clone https://github.com/Korgie8/DirectedAcyclicGraphWorkflowEngine.git
+cd DirectedAcyclicGraphWorkflowEngine
 ```
 
 **Secundo**
@@ -160,7 +160,7 @@ Save your breath; one last step is still ahead of us:
 
 Open a terminal in the root folder and start the C# engine by targeting the API project:
 ```bash
-dotnet run --project ConsistencyEngine.Api
+dotnet run --project DirectedAcyclicGraphWorkflowEngine.Api
 ```
 *(This automatically compiles the binaries, mounts the REST API, and opens the SignalR WebSocket hub).*
 
@@ -187,12 +187,6 @@ You can tweak the core behavior directly inside the source code:
 
 ___
 
-## Built With
-- **C# / .NET 8.0**
-- **ASP.NET Core & SignalR** (REST API & WebSocket)
-- **Tests — TDD (xUnit & FluentAssertions)**
-- **Python** (Test simulation visualizer)
-
 ## My thoughts
 
 Keeping this project within the bounds of my actual skill at the time of making required a few deliberate trade-offs to be put in place.
@@ -213,5 +207,11 @@ If I were to continue developing this project, I would definitely start with tho
 - **`Running` Node Status:** Utilizing the `Running` node status to track when a client has claimed a task, to safely automatically retry or fail tasks or to provide more information.
 - **Multi-Client Synchronization:** Upgrading the SignalR hub to use mission-specific group broadcasting instead of 1-to-1 client replies. This involves updating the backend logic — specifically handling client connections, joins, and disconnects — to adapt the engine for multi-client workflow.
 
+## Built With
+- **C# / .NET 8.0**
+- **ASP.NET Core & SignalR** (REST API & WebSocket)
+- **Tests — TDD (xUnit & FluentAssertions)**
+- **Python** (Test simulation visualizer)
+
 ## Acknowledgements
-All algorithms and logic inside `ConsistencyEngine.Core`, tests inside `ConsistencyEngine.Tests`, and the API inside `ConsistencyEngine.Api` were implemented by hand. In contrast, the simulation layer (`main.py` located in the `TestSimulation` folder) used to showcase the project was generated entirely by AI.
+All algorithms and logic inside `DirectedAcyclicGraphWorkflowEngine.Core`, tests inside `DirectedAcyclicGraphWorkflowEngine.Tests`, and the API inside `DirectedAcyclicGraphWorkflowEngine.Api` were implemented by hand. In contrast, the simulation layer (`main.py` located in the `TestSimulation` folder) used to showcase the project was generated entirely by AI.
