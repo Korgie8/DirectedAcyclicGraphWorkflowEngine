@@ -16,19 +16,19 @@
 What is being presented before thine eyes is an API-controlled Workflow Engine for a given set of tasks (mission) sorted and prepared by a DAG.
 
 <p align="center">
-  <img src="Assets/DAG-Normal_Behaviour.gif" alt="DAG successful Demo" width="600" />
+  <video src="Assets/DAG-Normal_Behaviour.mp4" alt="DAG successful Demo" width="600" />
   <br />
   <em>The animation above demonstrates **successful** execution.</em>
 </p>
 
 <p align="center">
-  <img src="Assets/DAG-Failed_Behaviour.gif" alt="DAG failed Demo" width="600" />
+  <video src="Assets/DAG-Failed_Behaviour.mp4" alt="DAG failed Demo" width="600" />
   <br />
   <em>The animation above demonstrates **failed** execution.</em>
 </p>
 
 <p align="center">
-  <img src="Assets/DAG-Cyclical_Behaviour.gif" alt="DAG cyclical Demo" width="600" />
+  <video src="Assets/DAG-Cyclical_Behaviour.mp4" alt="DAG cyclical Demo" width="600" />
   <br />
   <em>The animation above demonstrates **cyclical** execution.</em>
 </p>
