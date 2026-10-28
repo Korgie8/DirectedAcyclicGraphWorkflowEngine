@@ -16,21 +16,21 @@
 What is being presented before thine eyes is an API-controlled Workflow Engine for a given set of tasks (mission) sorted and prepared by a DAG.
 
 <p align="center">
-  <video src="Assets/DAG-Normal_Behaviour.mp4" alt="DAG successful Demo" width="600" />
+  <video src="https://github.com/Korgie8/DirectedAcyclicGraphWorkflowEngine/raw/main/Assets/DAG-Normal_Behaviour.mp4" autoplay loop muted playsinline width="600"></video>
   <br />
-  <em>The animation above demonstrates **successful** execution.</em>
+  <em>The animation above demonstrates <strong>successful</strong> execution.</em>
 </p>
 
 <p align="center">
-  <video src="Assets/DAG-Failed_Behaviour.mp4" alt="DAG failed Demo" width="600" />
+  <video src="https://github.com/Korgie8/DirectedAcyclicGraphWorkflowEngine/raw/main/Assets/DAG-Failed_Behaviour.mp4" autoplay loop muted playsinline width="600"></video>
   <br />
-  <em>The animation above demonstrates **failed** execution.</em>
+  <em>The animation above demonstrates <strong>failed</strong> execution.</em>
 </p>
 
 <p align="center">
-  <video src="Assets/DAG-Cyclical_Behaviour.mp4" alt="DAG cyclical Demo" width="600" />
+  <video src="https://github.com/Korgie8/DirectedAcyclicGraphWorkflowEngine/raw/main/Assets/DAG-Cyclical_Behaviour.mp4" autoplay loop muted playsinline width="600"></video>
   <br />
-  <em>The animation above demonstrates **cyclical** execution.</em>
+  <em>The animation above demonstrates <strong>cyclical</strong> execution.</em>
 </p>
 
 ### How does it work (In simple terms)
