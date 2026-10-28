@@ -61,7 +61,7 @@ First and foremost is the Directed Acyclic Graph — often abbreviated as DAG.
 > **Definition (DAG):** A directed graph that contains no directed cycles.
 
 <p align="center">
-  <img src="dag-showcase.jpeg" alt="DAG Showcase" width="600" />
+  <img src="Assets/dag-showcase.jpeg" alt="DAG Showcase" width="600" />
   <br />
   <em>The graph above represents a Directed Acyclic Graph (DAG).</em>
 </p>
